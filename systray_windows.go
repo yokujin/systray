@@ -797,9 +797,11 @@ func (t *winTray) loadIconFrom(src string) (windows.Handle, error) {
 		return 0, ErrTrayNotReadyYet
 	}
 
+	const IMAGE_BITMAP = 0             // Loads a bitmap
 	const IMAGE_ICON = 1               // Loads an icon
 	const LR_LOADFROMFILE = 0x00000010 // Loads the stand-alone image from the file
 	const LR_DEFAULTSIZE = 0x00000040  // Loads default-size icon for windows(SM_CXICON x SM_CYICON) if cx, cy are set to zero
+	const LR_CREATEDIBSECTION = 0x00002000
 
 	// Save and reuse handles of loaded images
 	t.muLoadedImages.RLock()
@@ -813,10 +815,10 @@ func (t *winTray) loadIconFrom(src string) (windows.Handle, error) {
 		res, _, err := pLoadImage.Call(
 			0,
 			uintptr(unsafe.Pointer(srcPtr)),
-			IMAGE_ICON,
+			IMAGE_BITMAP,
 			0,
 			0,
-			LR_LOADFROMFILE|LR_DEFAULTSIZE,
+			LR_LOADFROMFILE|LR_DEFAULTSIZE|LR_CREATEDIBSECTION,
 		)
 		if res == 0 {
 			return 0, err
